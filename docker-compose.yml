@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  dockerizedsimpleapp:
+    volumes: 
+      - /c/Docker/Share:/share:rw
+    image: dockerizedsimpleapp
+    build:
+      context: .
+      dockerfile: DockerizedSimpleApp/Dockerfile
