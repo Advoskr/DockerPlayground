@@ -1,10 +1,60 @@
 version: '3'
 
 services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+#    ports:
+#      - "5432:5432"
+
   dockerizedsimpleapp:
-    volumes: 
-      - /c/Docker/Share:/share:rw
+    links:
+      - postgres:postgres
+      - rabbitmq:rabbitmq
+#    volumes: 
+#      - /c/Docker/Share:/share:rw
     image: dockerizedsimpleapp
     build:
       context: .
       dockerfile: DockerizedSimpleApp/Dockerfile
+
+  rabbitmq:
+    image: 'rabbitmq:3.7.4-management'
+#    ports:
+#      - "15672:15672"
+#      - "5672:5672"
+#      - "5671:5671"
+    environment: 
+      RABBITMQ_DEFAULT_PASS: azsxdc!2
+      RABBITMQ_DEFAULT_USER: rmq
+      RABBITMQ_DEFAULT_VHOST: vhost
+    
+  pgadmin:
+#    links:
+#      - postgres:postgres
+    image: dpage/pgadmin4:3.0
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'postgres@pg.com'
+      PGADMIN_DEFAULT_PASSWORD: 'postgres'
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    network_mode: "host"
+
+  nginx:
+#    links:
+#      - pgadmin:pgadmin
+#      - rabbitmq:rabbitmq
+    image: "nginx:1.13.12"
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginxServers/server:/etc/nginx/conf.d/default.conf
+#      - ./nginxServers:/etc/nginx/sites-enabled
+    network_mode: "host"
+
+#networks:
+#  postgres:
+#    driver: host
